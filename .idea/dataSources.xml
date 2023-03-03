@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="carpool@localhost" uuid="1cc72007-d3a7-4e76-b3e0-a15dd3b622bf">
+    <data-source source="LOCAL" name="@localhost" uuid="b5dabd61-678c-4020-a456-c4a993de5e1f">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/carpool</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5432/</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
