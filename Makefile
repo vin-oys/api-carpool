@@ -4,6 +4,9 @@ postgres:
 createdb:
 	docker exec -it postgres12 createdb --username=root --owner=root carpool
 
+enterdb:
+	docker exec -it postgres12 psql -U root
+
 dropdb:
 	docker exec -it postgres12 dropdb carpool
 
