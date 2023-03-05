@@ -41,23 +41,3 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	)
 	return i, err
 }
-
-const selectUser = `-- name: SelectUser :one
-SELECT id, username, password, contact_number, created_at, updated_at, role_id FROM users
-WHERE username = $1
-`
-
-func (q *Queries) SelectUser(ctx context.Context, username sql.NullInt32) (User, error) {
-	row := q.db.QueryRowContext(ctx, selectUser, username)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Password,
-		&i.ContactNumber,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.RoleID,
-	)
-	return i, err
-}
