@@ -1,78 +1,70 @@
-CREATE TYPE user_role AS ENUM (
-  'super_administrator',
-  'administrator',
-  'driver',
-  'passenger'
+CREATE TYPE "user_role" AS ENUM (
+	'super_administrator',
+	'administrator',
+	'driver',
+	'passenger'
+	);
+
+CREATE TYPE "category" AS ENUM (
+	'adult',
+	'child'
+	);
+
+CREATE TABLE "user"
+(
+	"id"             INT PRIMARY KEY NOT NULL,
+	"username"       VARCHAR UNIQUE  NOT NULL,
+	"password"       VARCHAR         NOT NULL,
+	"firstname"      VARCHAR,
+	"lastname"       VARCHAR,
+	"contact_number" VARCHAR UNIQUE  NOT NULL,
+	"created_at"     TIMESTAMPTZ     NOT NULL DEFAULT (now()),
+	"updated_at"     TIMESTAMPTZ,
+	"role_id"        USER_ROLE       NOT NULL
 );
 
-CREATE TYPE gender AS ENUM (
-  'male',
-  'female'
+CREATE TABLE "car"
+(
+	"plate_id"   VARCHAR UNIQUE PRIMARY KEY NOT NULL,
+	"pax"        INT                        NOT NULL,
+	"created_at" TIMESTAMPTZ                NOT NULL DEFAULT (now()),
+	"updated_at" TIMESTAMPTZ
 );
 
-CREATE TYPE category AS ENUM (
-  'adult',
-  'child'
+CREATE TABLE "schedule"
+(
+	"id"             INT PRIMARY KEY NOT NULL,
+	"departure_date" DATE            NOT NULL,
+	"departure_time" TIME            NOT NULL,
+	"pickup"         JSONB           NOT NULL,
+	"dropoff"        JSONB           NOT NULL,
+	"driver_id"      INT,
+	"plate_id"       VARCHAR,
+	"created_at"     TIMESTAMPTZ     NOT NULL DEFAULT (now()),
+	"updated_at"     TIMESTAMPTZ,
+	CONSTRAINT fk_schedule_driver_id
+		FOREIGN KEY ("driver_id")
+			REFERENCES "user" ("id"),
+	CONSTRAINT fk_schedule_plate_id
+		FOREIGN KEY ("plate_id")
+			REFERENCES "car" ("plate_id")
 );
 
-CREATE TABLE "users" (
-											 "id" INT PRIMARY KEY,
-											 "username" INT UNIQUE,
-											 "password" VARCHAR NOT NULL,
-											 "contact_number" VARCHAR UNIQUE,
-											 "created_at" TIMESTAMPTZ NOT NULL DEFAULT (now()),
-											 "updated_at" TIMESTAMPTZ NOT NULL,
-											 "role_id" user_role
+CREATE TABLE "schedule_passenger"
+(
+	"id"           INT PRIMARY KEY NOT NULL,
+	"schedule_id"  INT,
+	"passenger_id" INT             NOT NULL,
+	"category"     CATEGORY        NOT NULL,
+	"seat"         INT,
+	"created_at"   TIMESTAMPTZ     NOT NULL DEFAULT (now()),
+	"updated_at"   TIMESTAMPTZ,
+	CONSTRAINT fk_schedule_passenger_schedule_id
+		FOREIGN KEY ("schedule_id") REFERENCES "schedule" ("id"),
+	CONSTRAINT fk_schedule_passenger_passenger_id
+		FOREIGN KEY ("passenger_id") REFERENCES "user" ("id")
 );
 
-CREATE TABLE "models" (
-												"id" INT PRIMARY KEY,
-												"name" VARCHAR UNIQUE NOT NULL,
-												"created_at" TIMESTAMPTZ NOT NULL DEFAULT (now()),
-												"updatedAt" TIMESTAMPTZ NOT NULL
-);
+COMMENT ON COLUMN "schedule"."driver_id" IS 'When carpool confirmed';
 
-CREATE TABLE "cars" (
-											"id" INT PRIMARY KEY,
-											"plate" VARCHAR UNIQUE NOT NULL,
-											"model_id" INT NOT NULL,
-											"created_at" TIMESTAMPTZ NOT NULL DEFAULT (now()),
-											"updated_at" TIMESTAMPTZ NOT NULL
-);
-
-CREATE TABLE "schedules" (
-													 "id" INT PRIMARY KEY,
-													 "departure_date" DATE NOT NULL,
-													 "departure_time" TIME NOT NULL,
-													 "pickup" JSONB NOT NULL,
-													 "dropoff" JSONB NOT NULL,
-													 "driver_id" INT,
-													 "car_id" INT,
-													 "created_at" TIMESTAMPTZ NOT NULL DEFAULT (now()),
-													 "updated_at" TIMESTAMPTZ NOT NULL
-);
-
-CREATE TABLE "schedule_passengers" (
-																		 "id" INT PRIMARY KEY,
-																		 "schedule_id" INT,
-																		 "passenger_id" INT,
-																		 "gender" gender,
-																		 "category" category,
-																		 "seat" INT,
-																		 "created_at" TIMESTAMPTZ NOT NULL DEFAULT (now()),
-																		 "updated_at" TIMESTAMPTZ NOT NULL
-);
-
-COMMENT ON COLUMN "schedules"."driver_id" IS 'When carpool confirmed';
-
-COMMENT ON COLUMN "schedules"."car_id" IS 'When carpool confirmed';
-
-ALTER TABLE "cars" ADD FOREIGN KEY ("model_id") REFERENCES "models" ("id");
-
-ALTER TABLE "schedules" ADD FOREIGN KEY ("driver_id") REFERENCES "users" ("id");
-
-ALTER TABLE "schedules" ADD FOREIGN KEY ("car_id") REFERENCES "cars" ("id");
-
-ALTER TABLE "schedule_passengers" ADD FOREIGN KEY ("schedule_id") REFERENCES "schedules" ("id");
-
-ALTER TABLE "schedule_passengers" ADD FOREIGN KEY ("passenger_id") REFERENCES "users" ("id");
+COMMENT ON COLUMN "schedule"."plate_id" IS 'When carpool confirmed';

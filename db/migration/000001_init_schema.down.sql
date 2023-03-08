@@ -1,8 +1,6 @@
-DROP TABLE IF EXISTS schedule_passengers;
-DROP TABLE IF EXISTS schedules;
-DROP TABLE IF EXISTS cars;
-DROP TABLE IF EXISTS models;
-DROP TABLE IF EXISTS users;
-DROP TYPE IF EXISTS category;
-DROP TYPE IF EXISTS gender;
-DROP TYPE IF EXISTS user_role;
+DROP TABLE IF EXISTS "schedule_passenger";
+DROP TABLE IF EXISTS "schedule";
+DROP TABLE IF EXISTS "car";
+DROP TABLE IF EXISTS "user";
+DROP TYPE IF EXISTS "category";
+DROP TYPE IF EXISTS "user_role";
