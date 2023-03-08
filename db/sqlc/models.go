@@ -110,7 +110,7 @@ type Schedule struct {
 	DepartureDate time.Time       `json:"departure_date"`
 	DepartureTime time.Time       `json:"departure_time"`
 	Pickup        json.RawMessage `json:"pickup"`
-	Dropoff       json.RawMessage `json:"dropoff"`
+	DropOff       json.RawMessage `json:"drop_off"`
 	// When carpool confirmed
 	DriverID sql.NullInt32 `json:"driver_id"`
 	// When carpool confirmed

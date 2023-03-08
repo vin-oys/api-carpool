@@ -37,7 +37,7 @@ CREATE TABLE "schedule"
 	"departure_date" DATE            NOT NULL,
 	"departure_time" TIME            NOT NULL,
 	"pickup"         JSONB           NOT NULL,
-	"dropoff"        JSONB           NOT NULL,
+	"drop_off"       JSONB           NOT NULL,
 	"driver_id"      INT,
 	"plate_id"       VARCHAR,
 	"created_at"     TIMESTAMPTZ     NOT NULL DEFAULT (now()),
