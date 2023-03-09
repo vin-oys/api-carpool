@@ -12,14 +12,14 @@ CREATE TYPE "category" AS ENUM (
 
 CREATE TABLE "user"
 (
-	"id"             INT PRIMARY KEY NOT NULL,
+	"id"             SERIAL PRIMARY KEY NOT NULL,
 	"username"       VARCHAR UNIQUE  NOT NULL,
 	"password"       VARCHAR         NOT NULL,
 	"firstname"      VARCHAR,
 	"lastname"       VARCHAR,
 	"contact_number" VARCHAR UNIQUE  NOT NULL,
-	"created_at"     TIMESTAMPTZ     NOT NULL DEFAULT (now()),
-	"updated_at"     TIMESTAMPTZ,
+	"created_at"     TIMESTAMP     NOT NULL DEFAULT (now()),
+	"updated_at"     TIMESTAMP,
 	"role_id"        USER_ROLE       NOT NULL
 );
 
@@ -27,8 +27,8 @@ CREATE TABLE "car"
 (
 	"plate_id"   VARCHAR UNIQUE PRIMARY KEY NOT NULL,
 	"pax"        INT                        NOT NULL,
-	"created_at" TIMESTAMPTZ                NOT NULL DEFAULT (now()),
-	"updated_at" TIMESTAMPTZ
+	"created_at" TIMESTAMP                NOT NULL DEFAULT (now()),
+	"updated_at" TIMESTAMP
 );
 
 CREATE TABLE "schedule"
@@ -40,8 +40,8 @@ CREATE TABLE "schedule"
 	"drop_off"       JSONB           NOT NULL,
 	"driver_id"      INT,
 	"plate_id"       VARCHAR,
-	"created_at"     TIMESTAMPTZ     NOT NULL DEFAULT (now()),
-	"updated_at"     TIMESTAMPTZ,
+	"created_at"     TIMESTAMP     NOT NULL DEFAULT (now()),
+	"updated_at"     TIMESTAMP,
 	CONSTRAINT fk_schedule_driver_id
 		FOREIGN KEY ("driver_id")
 			REFERENCES "user" ("id"),
@@ -57,8 +57,8 @@ CREATE TABLE "schedule_passenger"
 	"passenger_id" INT             NOT NULL,
 	"category"     CATEGORY        NOT NULL,
 	"seat"         INT,
-	"created_at"   TIMESTAMPTZ     NOT NULL DEFAULT (now()),
-	"updated_at"   TIMESTAMPTZ,
+	"created_at"   TIMESTAMP     NOT NULL DEFAULT (now()),
+	"updated_at"   TIMESTAMP,
 	CONSTRAINT fk_schedule_passenger_schedule_id
 		FOREIGN KEY ("schedule_id") REFERENCES "schedule" ("id"),
 	CONSTRAINT fk_schedule_passenger_passenger_id
