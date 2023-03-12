@@ -2,16 +2,28 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"github.com/stretchr/testify/require"
+	"github.com/vin-oys/api-carpool/util"
 	"testing"
+	"time"
 )
 
-func TestCreateUser(t *testing.T) {
+func randomUserRole() UserRole {
+	r := util.Random()
+	userRole := []UserRole{UserRoleSuperAdministrator, UserRoleAdministrator, UserRolePassenger}
+	k := len(userRole)
+
+	return userRole[r.Intn(k)]
+}
+
+func createRandomUser(t *testing.T) User {
+	username := util.RandomUsername()
 	arg := CreateUserParams{
-		Username:      "(+65)98765432",
-		Password:      "password",
-		ContactNumber: "+6598765432",
-		RoleID:        "super_administrator",
+		Username:      username,
+		Password:      util.RandomNumberInString(8),
+		ContactNumber: util.GetContactNumberFromUsername(username),
+		RoleID:        randomUserRole(),
 	}
 
 	user, err := testQueries.CreateUser(context.Background(), arg)
@@ -26,4 +38,117 @@ func TestCreateUser(t *testing.T) {
 
 	require.NotZero(t, user.ID)
 	require.NotZero(t, user.CreatedAt)
+	return user
+}
+
+func TestCreateUser(t *testing.T) {
+	createRandomUser(t)
+}
+
+func TestGetUser(t *testing.T) {
+	user1 := createRandomUser(t)
+	user2, err := testQueries.GetUser(context.Background(), user1.Username)
+
+	require.NoError(t, err)
+	require.NotEmpty(t, user2)
+
+	require.Equal(t, user1.Username, user2.Username)
+	require.Equal(t, user1.Password, user2.Password)
+	require.Equal(t, user1.ContactNumber, user2.ContactNumber)
+	require.Equal(t, user1.RoleID, user2.RoleID)
+
+	require.WithinDuration(t, user1.CreatedAt, user2.CreatedAt, time.Second)
+}
+
+func TestUpdateUser(t *testing.T) {
+	user1 := createRandomUser(t)
+	arg := UpdateUserParams{
+		Username:      user1.Username,
+		ContactNumber: user1.ContactNumber,
+	}
+	user2, err := testQueries.UpdateUser(context.Background(), arg)
+
+	require.NoError(t, err)
+	require.NotEmpty(t, user2)
+
+	require.Equal(t, user1.Username, user2.Username)
+	require.Equal(t, user1.Password, user2.Password)
+	require.Equal(t, user1.ContactNumber, user2.ContactNumber)
+	require.Equal(t, user1.RoleID, user2.RoleID)
+
+	require.WithinDuration(t, user1.CreatedAt, user2.CreatedAt, time.Second)
+
+}
+
+func TestUpdateUserPassword(t *testing.T) {
+	user1 := createRandomUser(t)
+	arg := UpdateUserPasswordParams{
+		Username: user1.Username,
+		Password: util.RandomNumberInString(8),
+	}
+	user2, err := testQueries.UpdateUserPassword(context.Background(), arg)
+
+	require.NoError(t, err)
+	require.NotEmpty(t, user2)
+
+	require.Equal(t, user1.Username, user2.Username)
+	require.Equal(t, arg.Password, user2.Password)
+	require.Equal(t, user1.ContactNumber, user2.ContactNumber)
+	require.Equal(t, user1.RoleID, user2.RoleID)
+
+	require.WithinDuration(t, user1.CreatedAt, user2.CreatedAt, time.Second)
+
+}
+
+func TestUpdateUserRole(t *testing.T) {
+	user1 := createRandomUser(t)
+	arg := UpdateUserRoleParams{
+		Username: user1.Username,
+		RoleID:   UserRoleDriver,
+	}
+	user2, err := testQueries.UpdateUserRole(context.Background(), arg)
+
+	require.NoError(t, err)
+	require.NotEmpty(t, user2)
+
+	require.Equal(t, user1.Username, user2.Username)
+	require.Equal(t, user1.Password, user2.Password)
+	require.Equal(t, user1.ContactNumber, user2.ContactNumber)
+	require.Equal(t, arg.RoleID, user2.RoleID)
+
+	require.WithinDuration(t, user1.CreatedAt, user2.CreatedAt, time.Second)
+
+}
+
+func TestDeleteUser(t *testing.T) {
+	user1 := createRandomUser(t)
+	err := testQueries.DeleteUser(context.Background(), user1.Username)
+
+	require.NoError(t, err)
+
+	user2, err := testQueries.GetUser(context.Background(), user1.Username)
+
+	require.Error(t, err)
+	require.EqualError(t, err, sql.ErrNoRows.Error())
+	require.Empty(t, user2)
+}
+
+func TestListUsers(t *testing.T) {
+	for i := 0; i < 10; i++ {
+		createRandomUser(t)
+	}
+
+	arg := ListUsersParams{
+		Limit:  5,
+		Offset: 5,
+	}
+
+	users, err := testQueries.ListUsers(context.Background(), arg)
+	require.NoError(t, err)
+	require.Len(t, users, 5)
+
+	for _, user := range users {
+		require.NotEmpty(t, user)
+	}
+
 }
