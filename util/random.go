@@ -51,3 +51,7 @@ func concatContactNumber(code, num string) string {
 	sb.WriteString(num)
 	return sb.String()
 }
+
+func RandomTime() time.Time {
+	return time.Now()
+}
