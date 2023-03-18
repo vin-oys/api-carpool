@@ -2,6 +2,11 @@
 INSERT INTO "car" (plate_id, pax)
 VALUES ($1, $2)
 RETURNING *;
+-- name: GetCar :one
+SELECT *
+from "car"
+WHERE plate_id = $1
+LIMIT 1;
 -- name: ListCars :many
 SELECT *
 FROM "car"
