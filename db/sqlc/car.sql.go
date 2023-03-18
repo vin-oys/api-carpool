@@ -43,6 +43,25 @@ func (q *Queries) DeleteCar(ctx context.Context, plateID string) error {
 	return err
 }
 
+const getCar = `-- name: GetCar :one
+SELECT plate_id, pax, created_at, updated_at
+from "car"
+WHERE plate_id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetCar(ctx context.Context, plateID string) (Car, error) {
+	row := q.db.QueryRowContext(ctx, getCar, plateID)
+	var i Car
+	err := row.Scan(
+		&i.PlateID,
+		&i.Pax,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const listCars = `-- name: ListCars :many
 SELECT plate_id, pax, created_at, updated_at
 FROM "car"
