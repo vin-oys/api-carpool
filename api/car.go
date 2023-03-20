@@ -68,12 +68,12 @@ func (server *Server) updateCar(ctx *gin.Context) {
 		return
 	}
 
-	arg := db.UpdateCarParams{
+	arg := db.UpdateCarPaxParams{
 		PlateID: req.PlateID,
 		Pax:     req.Pax,
 	}
 
-	car, err := server.store.UpdateCar(ctx, arg)
+	car, err := server.store.UpdateCarPax(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
