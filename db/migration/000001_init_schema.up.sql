@@ -12,35 +12,35 @@ CREATE TYPE "category" AS ENUM (
 
 CREATE TABLE "user"
 (
-	"id"             SERIAL PRIMARY KEY NOT NULL,
-	"username"       VARCHAR UNIQUE  NOT NULL,
-	"password"       VARCHAR         NOT NULL,
+	"id"             SERIAL PRIMARY KEY,
+	"username"       VARCHAR UNIQUE NOT NULL,
+	"password"       VARCHAR        NOT NULL,
 	"firstname"      VARCHAR,
 	"lastname"       VARCHAR,
-	"contact_number" VARCHAR UNIQUE  NOT NULL,
-	"created_at"     TIMESTAMP     NOT NULL DEFAULT (now()),
+	"contact_number" VARCHAR UNIQUE NOT NULL,
+	"created_at"     TIMESTAMP      NOT NULL DEFAULT (now()),
 	"updated_at"     TIMESTAMP,
-	"role_id"        USER_ROLE       NOT NULL
+	"role_id"        USER_ROLE      NOT NULL
 );
 
 CREATE TABLE "car"
 (
 	"plate_id"   VARCHAR UNIQUE PRIMARY KEY NOT NULL,
 	"pax"        INT                        NOT NULL,
-	"created_at" TIMESTAMP                NOT NULL DEFAULT (now()),
+	"created_at" TIMESTAMP                  NOT NULL DEFAULT (now()),
 	"updated_at" TIMESTAMP
 );
 
 CREATE TABLE "schedule"
 (
-	"id"             INT PRIMARY KEY NOT NULL,
-	"departure_date" DATE            NOT NULL,
-	"departure_time" TIME            NOT NULL,
-	"pickup"         JSONB           NOT NULL,
-	"drop_off"       JSONB           NOT NULL,
+	"id"             SERIAL PRIMARY KEY,
+	"departure_date" DATE      NOT NULL,
+	"departure_time" TIME      NOT NULL,
+	"pickup"         JSONB     NOT NULL,
+	"drop_off"       JSONB     NOT NULL,
 	"driver_id"      INT,
 	"plate_id"       VARCHAR,
-	"created_at"     TIMESTAMP     NOT NULL DEFAULT (now()),
+	"created_at"     TIMESTAMP NOT NULL DEFAULT (now()),
 	"updated_at"     TIMESTAMP,
 	CONSTRAINT fk_schedule_driver_id
 		FOREIGN KEY ("driver_id")
@@ -52,12 +52,12 @@ CREATE TABLE "schedule"
 
 CREATE TABLE "schedule_passenger"
 (
-	"id"           INT PRIMARY KEY NOT NULL,
+	"id"           SERIAL PRIMARY KEY,
 	"schedule_id"  INT,
-	"passenger_id" INT             NOT NULL,
-	"category"     CATEGORY        NOT NULL,
+	"passenger_id" INT       NOT NULL,
+	"category"     CATEGORY  NOT NULL,
 	"seat"         INT,
-	"created_at"   TIMESTAMP     NOT NULL DEFAULT (now()),
+	"created_at"   TIMESTAMP NOT NULL DEFAULT (now()),
 	"updated_at"   TIMESTAMP,
 	CONSTRAINT fk_schedule_passenger_schedule_id
 		FOREIGN KEY ("schedule_id") REFERENCES "schedule" ("id"),

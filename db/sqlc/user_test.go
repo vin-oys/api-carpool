@@ -17,7 +17,7 @@ func randomUserRole() UserRole {
 	return userRole[r.Intn(k)]
 }
 
-func createRandomUser(t *testing.T) User {
+func CreateRandomUser(t *testing.T) User {
 	username := util.RandomUsername()
 	arg := CreateUserParams{
 		Username:      username,
@@ -42,11 +42,11 @@ func createRandomUser(t *testing.T) User {
 }
 
 func TestCreateUser(t *testing.T) {
-	createRandomUser(t)
+	CreateRandomUser(t)
 }
 
 func TestGetUser(t *testing.T) {
-	user1 := createRandomUser(t)
+	user1 := CreateRandomUser(t)
 	user2, err := testQueries.GetUser(context.Background(), user1.Username)
 
 	require.NoError(t, err)
@@ -61,7 +61,7 @@ func TestGetUser(t *testing.T) {
 }
 
 func TestUpdateUser(t *testing.T) {
-	user1 := createRandomUser(t)
+	user1 := CreateRandomUser(t)
 	arg := UpdateUserParams{
 		Username:      user1.Username,
 		ContactNumber: user1.ContactNumber,
@@ -81,7 +81,7 @@ func TestUpdateUser(t *testing.T) {
 }
 
 func TestUpdateUserPassword(t *testing.T) {
-	user1 := createRandomUser(t)
+	user1 := CreateRandomUser(t)
 	arg := UpdateUserPasswordParams{
 		Username: user1.Username,
 		Password: util.RandomNumberInString(8),
@@ -101,7 +101,7 @@ func TestUpdateUserPassword(t *testing.T) {
 }
 
 func TestUpdateUserRole(t *testing.T) {
-	user1 := createRandomUser(t)
+	user1 := CreateRandomUser(t)
 	arg := UpdateUserRoleParams{
 		Username: user1.Username,
 		RoleID:   UserRoleDriver,
@@ -121,7 +121,7 @@ func TestUpdateUserRole(t *testing.T) {
 }
 
 func TestDeleteUser(t *testing.T) {
-	user1 := createRandomUser(t)
+	user1 := CreateRandomUser(t)
 	err := testQueries.DeleteUser(context.Background(), user1.Username)
 
 	require.NoError(t, err)
@@ -135,7 +135,7 @@ func TestDeleteUser(t *testing.T) {
 
 func TestListUsers(t *testing.T) {
 	for i := 0; i < 10; i++ {
-		createRandomUser(t)
+		CreateRandomUser(t)
 	}
 
 	arg := ListUsersParams{

@@ -39,22 +39,49 @@ func (q *Queries) CreateSchedulePassenger(ctx context.Context, arg CreateSchedul
 const deleteSchedulePassenger = `-- name: DeleteSchedulePassenger :exec
 DELETE
 FROM "schedule_passenger"
-WHERE passenger_id = $1
+WHERE id = $1
 `
 
-func (q *Queries) DeleteSchedulePassenger(ctx context.Context, passengerID int32) error {
-	_, err := q.db.ExecContext(ctx, deleteSchedulePassenger, passengerID)
+func (q *Queries) DeleteSchedulePassenger(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, deleteSchedulePassenger, id)
 	return err
+}
+
+const getSchedulePassenger = `-- name: GetSchedulePassenger :one
+SELECT id, schedule_id, passenger_id, category, seat, created_at, updated_at
+FROM "schedule_passenger"
+WHERE id = $1
+`
+
+func (q *Queries) GetSchedulePassenger(ctx context.Context, id int32) (SchedulePassenger, error) {
+	row := q.db.QueryRowContext(ctx, getSchedulePassenger, id)
+	var i SchedulePassenger
+	err := row.Scan(
+		&i.ID,
+		&i.ScheduleID,
+		&i.PassengerID,
+		&i.Category,
+		&i.Seat,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const listSchedulePassengers = `-- name: ListSchedulePassengers :many
 SELECT id, schedule_id, passenger_id, category, seat, created_at, updated_at
 FROM "schedule_passenger"
 ORDER BY schedule_id
+LIMIT $1 OFFSET $2
 `
 
-func (q *Queries) ListSchedulePassengers(ctx context.Context) ([]SchedulePassenger, error) {
-	rows, err := q.db.QueryContext(ctx, listSchedulePassengers)
+type ListSchedulePassengersParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) ListSchedulePassengers(ctx context.Context, arg ListSchedulePassengersParams) ([]SchedulePassenger, error) {
+	rows, err := q.db.QueryContext(ctx, listSchedulePassengers, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

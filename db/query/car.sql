@@ -12,7 +12,7 @@ SELECT *
 FROM "car"
 ORDER BY plate_id
 LIMIT $1 OFFSET $2;
--- name: UpdateCar :one
+-- name: UpdateCarPax :one
 UPDATE "car"
 SET pax = $2
 WHERE plate_id = $1

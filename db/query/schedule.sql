@@ -2,6 +2,10 @@
 INSERT INTO "schedule" (departure_date, departure_time, pickup, drop_off)
 VALUES ($1, $2, $3, $4)
 RETURNING *;
+-- name: GetSchedule :one
+SELECT *
+FROM "schedule"
+WHERE id = $1;
 -- name: ListSchedules :many
 SELECT *
 FROM "schedule"
