@@ -102,20 +102,20 @@ func (q *Queries) ListCars(ctx context.Context, arg ListCarsParams) ([]Car, erro
 	return items, nil
 }
 
-const updateCar = `-- name: UpdateCar :one
+const updateCarPax = `-- name: UpdateCarPax :one
 UPDATE "car"
 SET pax = $2
 WHERE plate_id = $1
 RETURNING plate_id, pax, created_at, updated_at
 `
 
-type UpdateCarParams struct {
+type UpdateCarPaxParams struct {
 	PlateID string `json:"plate_id"`
 	Pax     int32  `json:"pax"`
 }
 
-func (q *Queries) UpdateCar(ctx context.Context, arg UpdateCarParams) (Car, error) {
-	row := q.db.QueryRowContext(ctx, updateCar, arg.PlateID, arg.Pax)
+func (q *Queries) UpdateCarPax(ctx context.Context, arg UpdateCarPaxParams) (Car, error) {
+	row := q.db.QueryRowContext(ctx, updateCarPax, arg.PlateID, arg.Pax)
 	var i Car
 	err := row.Scan(
 		&i.PlateID,

@@ -58,6 +58,29 @@ func (q *Queries) DeleteSchedule(ctx context.Context, id int32) error {
 	return err
 }
 
+const getSchedule = `-- name: GetSchedule :one
+SELECT id, departure_date, departure_time, pickup, drop_off, driver_id, plate_id, created_at, updated_at
+FROM "schedule"
+WHERE id = $1
+`
+
+func (q *Queries) GetSchedule(ctx context.Context, id int32) (Schedule, error) {
+	row := q.db.QueryRowContext(ctx, getSchedule, id)
+	var i Schedule
+	err := row.Scan(
+		&i.ID,
+		&i.DepartureDate,
+		&i.DepartureTime,
+		&i.Pickup,
+		&i.DropOff,
+		&i.DriverID,
+		&i.PlateID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const listSchedules = `-- name: ListSchedules :many
 SELECT id, departure_date, departure_time, pickup, drop_off, driver_id, plate_id, created_at, updated_at
 FROM "schedule"
