@@ -21,6 +21,15 @@ func NewServer(store *db.Store) *Server {
 	userRoutes.PUT("/update", server.updateUser)
 	userRoutes.DELETE("/delete", server.deleteUser)
 
+	passengerRoute := router.Group("/passenger")
+
+	passengerRoute.POST("/", server.createSchedulePassenger)
+	passengerRoute.GET("/", server.getScheduledPassenger)
+	passengerRoute.GET("/list", server.listScheduledPassengers)
+	passengerRoute.PUT("/schedule", server.updatePassengerSchedule)
+	passengerRoute.PUT("/seat", server.updatePassengerSeat)
+	passengerRoute.DELETE("/", server.deleteSchedulePassenger)
+
 	scheduleRoutes := router.Group("/schedule")
 	scheduleRoutes.POST("/create", server.createSchedule)
 	scheduleRoutes.GET("/get", server.getSchedule)
