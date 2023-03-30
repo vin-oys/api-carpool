@@ -21,9 +21,11 @@ Install golang-migrate.
 
 [golang-migrate documentation](https://github.com/golang-migrate/migrate) 
 >`brew install golang-migrate`
-
 ---
 Please refer to **Makerfile** for scripts
+
+Build network for DB and App connection
+>`make network`
 
 Run docker container
 >`make postgres`
@@ -34,4 +36,9 @@ Create DB
 Run DB migration script
 >`make migrateup`
 
+Build golang app
+>`make server-build`
+
+Run golang app
+>`make server-run`
 ---
