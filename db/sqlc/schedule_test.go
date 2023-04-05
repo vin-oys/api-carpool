@@ -31,10 +31,12 @@ func CreateRandomSchedule(t *testing.T) Schedule {
 	departureTime, _ := time.Parse(time.TimeOnly, MockTime().Format(time.TimeOnly))
 
 	arg := CreateScheduleParams{
-		DepartureDate: departureDate,
-		DepartureTime: departureTime,
-		Pickup:        MockJSON(),
-		DropOff:       MockJSON(),
+		DepartureDate:  departureDate,
+		DepartureTime:  departureTime,
+		Pickup:         MockJSON(),
+		DropOff:        MockJSON(),
+		PickupCountry:  CountryMalaysia,
+		DropOffCountry: CountrySingapore,
 	}
 
 	schedule, err := testQueries.CreateSchedule(context.Background(), arg)
@@ -46,6 +48,8 @@ func CreateRandomSchedule(t *testing.T) Schedule {
 	require.WithinDuration(t, arg.DepartureTime, schedule.DepartureTime, time.Second)
 	require.JSONEq(t, string(arg.Pickup), string(schedule.Pickup))
 	require.JSONEq(t, string(arg.DropOff), string(schedule.DropOff))
+	require.Equal(t, arg.PickupCountry, schedule.PickupCountry)
+	require.Equal(t, arg.DropOffCountry, schedule.DropOffCountry)
 
 	require.NotZero(t, schedule.CreatedAt)
 

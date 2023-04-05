@@ -54,6 +54,48 @@ func (ns NullCategory) Value() (driver.Value, error) {
 	return string(ns.Category), nil
 }
 
+type Country string
+
+const (
+	CountryMalaysia  Country = "malaysia"
+	CountrySingapore Country = "singapore"
+)
+
+func (e *Country) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = Country(s)
+	case string:
+		*e = Country(s)
+	default:
+		return fmt.Errorf("unsupported scan type for Country: %T", src)
+	}
+	return nil
+}
+
+type NullCountry struct {
+	Country Country
+	Valid   bool // Valid is true if Country is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullCountry) Scan(value interface{}) error {
+	if value == nil {
+		ns.Country, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.Country.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullCountry) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.Country), nil
+}
+
 type UserRole string
 
 const (
@@ -106,11 +148,13 @@ type Car struct {
 }
 
 type Schedule struct {
-	ID            int32           `json:"id"`
-	DepartureDate time.Time       `json:"departure_date"`
-	DepartureTime time.Time       `json:"departure_time"`
-	Pickup        json.RawMessage `json:"pickup"`
-	DropOff       json.RawMessage `json:"drop_off"`
+	ID             int32           `json:"id"`
+	DepartureDate  time.Time       `json:"departure_date"`
+	DepartureTime  time.Time       `json:"departure_time"`
+	Pickup         json.RawMessage `json:"pickup"`
+	DropOff        json.RawMessage `json:"drop_off"`
+	PickupCountry  Country         `json:"pickup_country"`
+	DropOffCountry Country         `json:"drop_off_country"`
 	// When carpool confirmed
 	DriverID sql.NullInt32 `json:"driver_id"`
 	// When carpool confirmed

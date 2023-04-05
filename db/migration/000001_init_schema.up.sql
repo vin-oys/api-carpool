@@ -10,6 +10,11 @@ CREATE TYPE "category" AS ENUM (
 	'child'
 	);
 
+CREATE TYPE "country" AS ENUM (
+	'malaysia',
+	'singapore'
+	);
+
 CREATE TABLE "user"
 (
 	"id"             SERIAL PRIMARY KEY,
@@ -33,15 +38,17 @@ CREATE TABLE "car"
 
 CREATE TABLE "schedule"
 (
-	"id"             SERIAL PRIMARY KEY,
-	"departure_date" DATE      NOT NULL,
-	"departure_time" TIME      NOT NULL,
-	"pickup"         JSONB     NOT NULL,
-	"drop_off"       JSONB     NOT NULL,
-	"driver_id"      INT,
-	"plate_id"       VARCHAR,
-	"created_at"     TIMESTAMP NOT NULL DEFAULT (now()),
-	"updated_at"     TIMESTAMP,
+	"id"               SERIAL PRIMARY KEY,
+	"departure_date"   DATE      NOT NULL,
+	"departure_time"   TIME      NOT NULL,
+	"pickup"           JSONB     NOT NULL,
+	"drop_off"         JSONB     NOT NULL,
+	"pickup_country"   COUNTRY   NOT NULL,
+	"drop_off_country" COUNTRY   NOT NULL,
+	"driver_id"        INT,
+	"plate_id"         VARCHAR,
+	"created_at"       TIMESTAMP NOT NULL DEFAULT (now()),
+	"updated_at"       TIMESTAMP,
 	CONSTRAINT fk_schedule_driver_id
 		FOREIGN KEY ("driver_id")
 			REFERENCES "user" ("id"),

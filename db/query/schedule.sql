@@ -1,6 +1,6 @@
 -- name: CreateSchedule :one
-INSERT INTO "schedule" (departure_date, departure_time, pickup, drop_off)
-VALUES ($1, $2, $3, $4)
+INSERT INTO "schedule" (departure_date, departure_time, pickup, drop_off, pickup_country, drop_off_country)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 -- name: GetSchedule :one
 SELECT *
