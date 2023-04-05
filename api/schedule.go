@@ -10,10 +10,12 @@ import (
 )
 
 type createScheduleRequest struct {
-	DepartureDate time.Time       `json:"departure_date" binding:"required"`
-	DepartureTime time.Time       `json:"departure_time" binding:"required"`
-	PickUp        json.RawMessage `json:"pickup" binding:"required"`
-	DropOff       json.RawMessage `json:"drop_off" binding:"required"`
+	DepartureDate  time.Time       `json:"departure_date" binding:"required"`
+	DepartureTime  time.Time       `json:"departure_time" binding:"required"`
+	PickUp         json.RawMessage `json:"pickup" binding:"required"`
+	DropOff        json.RawMessage `json:"drop_off" binding:"required"`
+	PickUpCountry  db.Country      `json:"pick_up_country" binding:"required"`
+	DropOffCountry db.Country      `json:"pick_up_country" binding:"required"`
 }
 
 type getScheduleRequest struct {
@@ -42,10 +44,12 @@ func (server *Server) createSchedule(ctx *gin.Context) {
 	}
 
 	arg := db.CreateScheduleParams{
-		DepartureDate: req.DepartureDate,
-		DepartureTime: req.DepartureTime,
-		Pickup:        req.PickUp,
-		DropOff:       req.DropOff,
+		DepartureDate:  req.DepartureDate,
+		DepartureTime:  req.DepartureTime,
+		Pickup:         req.PickUp,
+		DropOff:        req.DropOff,
+		PickupCountry:  req.PickUpCountry,
+		DropOffCountry: req.DropOffCountry,
 	}
 
 	schedule, err := server.store.CreateSchedule(ctx, arg)

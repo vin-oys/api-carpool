@@ -13,16 +13,18 @@ import (
 )
 
 const createSchedule = `-- name: CreateSchedule :one
-INSERT INTO "schedule" (departure_date, departure_time, pickup, drop_off)
-VALUES ($1, $2, $3, $4)
-RETURNING id, departure_date, departure_time, pickup, drop_off, driver_id, plate_id, created_at, updated_at
+INSERT INTO "schedule" (departure_date, departure_time, pickup, drop_off, pickup_country, drop_off_country)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, departure_date, departure_time, pickup, drop_off, pickup_country, drop_off_country, driver_id, plate_id, created_at, updated_at
 `
 
 type CreateScheduleParams struct {
-	DepartureDate time.Time       `json:"departure_date"`
-	DepartureTime time.Time       `json:"departure_time"`
-	Pickup        json.RawMessage `json:"pickup"`
-	DropOff       json.RawMessage `json:"drop_off"`
+	DepartureDate  time.Time       `json:"departure_date"`
+	DepartureTime  time.Time       `json:"departure_time"`
+	Pickup         json.RawMessage `json:"pickup"`
+	DropOff        json.RawMessage `json:"drop_off"`
+	PickupCountry  Country         `json:"pickup_country"`
+	DropOffCountry Country         `json:"drop_off_country"`
 }
 
 func (q *Queries) CreateSchedule(ctx context.Context, arg CreateScheduleParams) (Schedule, error) {
@@ -31,6 +33,8 @@ func (q *Queries) CreateSchedule(ctx context.Context, arg CreateScheduleParams) 
 		arg.DepartureTime,
 		arg.Pickup,
 		arg.DropOff,
+		arg.PickupCountry,
+		arg.DropOffCountry,
 	)
 	var i Schedule
 	err := row.Scan(
@@ -39,6 +43,8 @@ func (q *Queries) CreateSchedule(ctx context.Context, arg CreateScheduleParams) 
 		&i.DepartureTime,
 		&i.Pickup,
 		&i.DropOff,
+		&i.PickupCountry,
+		&i.DropOffCountry,
 		&i.DriverID,
 		&i.PlateID,
 		&i.CreatedAt,
@@ -59,7 +65,7 @@ func (q *Queries) DeleteSchedule(ctx context.Context, id int32) error {
 }
 
 const getSchedule = `-- name: GetSchedule :one
-SELECT id, departure_date, departure_time, pickup, drop_off, driver_id, plate_id, created_at, updated_at
+SELECT id, departure_date, departure_time, pickup, drop_off, pickup_country, drop_off_country, driver_id, plate_id, created_at, updated_at
 FROM "schedule"
 WHERE id = $1
 `
@@ -73,6 +79,8 @@ func (q *Queries) GetSchedule(ctx context.Context, id int32) (Schedule, error) {
 		&i.DepartureTime,
 		&i.Pickup,
 		&i.DropOff,
+		&i.PickupCountry,
+		&i.DropOffCountry,
 		&i.DriverID,
 		&i.PlateID,
 		&i.CreatedAt,
@@ -82,7 +90,7 @@ func (q *Queries) GetSchedule(ctx context.Context, id int32) (Schedule, error) {
 }
 
 const listSchedules = `-- name: ListSchedules :many
-SELECT id, departure_date, departure_time, pickup, drop_off, driver_id, plate_id, created_at, updated_at
+SELECT id, departure_date, departure_time, pickup, drop_off, pickup_country, drop_off_country, driver_id, plate_id, created_at, updated_at
 FROM "schedule"
 ORDER BY id
 LIMIT $1 OFFSET $2
@@ -108,6 +116,8 @@ func (q *Queries) ListSchedules(ctx context.Context, arg ListSchedulesParams) ([
 			&i.DepartureTime,
 			&i.Pickup,
 			&i.DropOff,
+			&i.PickupCountry,
+			&i.DropOffCountry,
 			&i.DriverID,
 			&i.PlateID,
 			&i.CreatedAt,
@@ -130,7 +140,7 @@ const updateScheduleDepartureDate = `-- name: UpdateScheduleDepartureDate :one
 UPDATE "schedule"
 SET departure_date = $2
 WHERE id = $1
-RETURNING id, departure_date, departure_time, pickup, drop_off, driver_id, plate_id, created_at, updated_at
+RETURNING id, departure_date, departure_time, pickup, drop_off, pickup_country, drop_off_country, driver_id, plate_id, created_at, updated_at
 `
 
 type UpdateScheduleDepartureDateParams struct {
@@ -147,6 +157,8 @@ func (q *Queries) UpdateScheduleDepartureDate(ctx context.Context, arg UpdateSch
 		&i.DepartureTime,
 		&i.Pickup,
 		&i.DropOff,
+		&i.PickupCountry,
+		&i.DropOffCountry,
 		&i.DriverID,
 		&i.PlateID,
 		&i.CreatedAt,
@@ -159,7 +171,7 @@ const updateScheduleDepartureTime = `-- name: UpdateScheduleDepartureTime :one
 UPDATE "schedule"
 SET departure_time = $2
 WHERE id = $1
-RETURNING id, departure_date, departure_time, pickup, drop_off, driver_id, plate_id, created_at, updated_at
+RETURNING id, departure_date, departure_time, pickup, drop_off, pickup_country, drop_off_country, driver_id, plate_id, created_at, updated_at
 `
 
 type UpdateScheduleDepartureTimeParams struct {
@@ -176,6 +188,8 @@ func (q *Queries) UpdateScheduleDepartureTime(ctx context.Context, arg UpdateSch
 		&i.DepartureTime,
 		&i.Pickup,
 		&i.DropOff,
+		&i.PickupCountry,
+		&i.DropOffCountry,
 		&i.DriverID,
 		&i.PlateID,
 		&i.CreatedAt,
@@ -188,7 +202,7 @@ const updateScheduleDriverId = `-- name: UpdateScheduleDriverId :one
 UPDATE "schedule"
 SET driver_id = $2
 WHERE id = $1
-RETURNING id, departure_date, departure_time, pickup, drop_off, driver_id, plate_id, created_at, updated_at
+RETURNING id, departure_date, departure_time, pickup, drop_off, pickup_country, drop_off_country, driver_id, plate_id, created_at, updated_at
 `
 
 type UpdateScheduleDriverIdParams struct {
@@ -205,6 +219,8 @@ func (q *Queries) UpdateScheduleDriverId(ctx context.Context, arg UpdateSchedule
 		&i.DepartureTime,
 		&i.Pickup,
 		&i.DropOff,
+		&i.PickupCountry,
+		&i.DropOffCountry,
 		&i.DriverID,
 		&i.PlateID,
 		&i.CreatedAt,
@@ -217,7 +233,7 @@ const updateScheduleDropOff = `-- name: UpdateScheduleDropOff :one
 UPDATE "schedule"
 SET drop_off = $2
 WHERE id = $1
-RETURNING id, departure_date, departure_time, pickup, drop_off, driver_id, plate_id, created_at, updated_at
+RETURNING id, departure_date, departure_time, pickup, drop_off, pickup_country, drop_off_country, driver_id, plate_id, created_at, updated_at
 `
 
 type UpdateScheduleDropOffParams struct {
@@ -234,6 +250,8 @@ func (q *Queries) UpdateScheduleDropOff(ctx context.Context, arg UpdateScheduleD
 		&i.DepartureTime,
 		&i.Pickup,
 		&i.DropOff,
+		&i.PickupCountry,
+		&i.DropOffCountry,
 		&i.DriverID,
 		&i.PlateID,
 		&i.CreatedAt,
@@ -246,7 +264,7 @@ const updateSchedulePickup = `-- name: UpdateSchedulePickup :one
 UPDATE "schedule"
 SET pickup = $2
 WHERE id = $1
-RETURNING id, departure_date, departure_time, pickup, drop_off, driver_id, plate_id, created_at, updated_at
+RETURNING id, departure_date, departure_time, pickup, drop_off, pickup_country, drop_off_country, driver_id, plate_id, created_at, updated_at
 `
 
 type UpdateSchedulePickupParams struct {
@@ -263,6 +281,8 @@ func (q *Queries) UpdateSchedulePickup(ctx context.Context, arg UpdateSchedulePi
 		&i.DepartureTime,
 		&i.Pickup,
 		&i.DropOff,
+		&i.PickupCountry,
+		&i.DropOffCountry,
 		&i.DriverID,
 		&i.PlateID,
 		&i.CreatedAt,
@@ -275,7 +295,7 @@ const updateSchedulePlateId = `-- name: UpdateSchedulePlateId :one
 UPDATE "schedule"
 SET plate_id = $2
 WHERE id = $1
-RETURNING id, departure_date, departure_time, pickup, drop_off, driver_id, plate_id, created_at, updated_at
+RETURNING id, departure_date, departure_time, pickup, drop_off, pickup_country, drop_off_country, driver_id, plate_id, created_at, updated_at
 `
 
 type UpdateSchedulePlateIdParams struct {
@@ -292,6 +312,8 @@ func (q *Queries) UpdateSchedulePlateId(ctx context.Context, arg UpdateScheduleP
 		&i.DepartureTime,
 		&i.Pickup,
 		&i.DropOff,
+		&i.PickupCountry,
+		&i.DropOffCountry,
 		&i.DriverID,
 		&i.PlateID,
 		&i.CreatedAt,
