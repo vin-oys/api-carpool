@@ -10,7 +10,7 @@ import (
 
 const (
 	dbDriver      = "postgres"
-	dbSource      = "postgresql://root:password@api-carpool-db:5432/carpool?sslmode=disable"
+	dbSource      = "postgresql://root:password@db:5432/carpool?sslmode=disable"
 	serverAddress = "0.0.0.0:8080"
 )
 
