@@ -40,6 +40,7 @@ func NewServer(store *db.Store) *Server {
 	scheduleRoutes := router.Group("/schedule")
 	scheduleRoutes.POST("/create", server.createSchedule)
 	scheduleRoutes.GET("/get", server.getSchedule)
+	scheduleRoutes.GET("/list", server.listSchedule)
 	scheduleRoutes.PUT("/update/departureDate", server.updateScheduleDepartureDate)
 	scheduleRoutes.PUT("/update/departureTime", server.updateScheduleDepartureTime)
 	scheduleRoutes.PUT("/update/driverId", server.updateScheduleDriverId)
