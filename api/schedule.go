@@ -15,11 +15,18 @@ type createScheduleRequest struct {
 	PickUp         json.RawMessage `json:"pickup" binding:"required"`
 	DropOff        json.RawMessage `json:"drop_off" binding:"required"`
 	PickUpCountry  db.Country      `json:"pick_up_country" binding:"required"`
-	DropOffCountry db.Country      `json:"pick_up_country" binding:"required"`
+	DropOffCountry db.Country      `json:"drop_off_country" binding:"required"`
+	DriverID       int32           `json:"driver_id"`
+	PlateID        string          `json:"plate_id"`
 }
 
 type getScheduleRequest struct {
 	ID int32 `json:"id" binding:"required"`
+}
+
+type getAllScheduleRequest struct {
+	PageID   int32 `form:"page_id" binding:"required,min=1"`
+	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
 type updateScheduleRequest struct {
@@ -74,6 +81,29 @@ func (server *Server) getSchedule(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, schedule)
+}
+
+func (server *Server) listSchedule(ctx *gin.Context) {
+	var req getAllScheduleRequest
+
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	arg := db.ListSchedulesParams{
+		Limit:  req.PageID,
+		Offset: (req.PageID - 1) * req.PageSize,
+	}
+
+	schedule, err := server.store.ListSchedules(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, schedule)
+
 }
 
 func (server *Server) updateScheduleDepartureDate(ctx *gin.Context) {
