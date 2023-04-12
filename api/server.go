@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	db "github.com/vin-oys/api-carpool/db/sqlc"
 )
@@ -13,6 +14,8 @@ type Server struct {
 func NewServer(store *db.Store) *Server {
 	server := &Server{store: store}
 	router := gin.Default()
+
+	router.Use(cors.Default())
 
 	userRoutes := router.Group("/user")
 
