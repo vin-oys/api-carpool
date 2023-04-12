@@ -16,7 +16,6 @@ func NewServer(store *db.Store) *Server {
 	router := gin.Default()
 
 	router.Use(cors.Default())
-
 	userRoutes := router.Group("/user")
 
 	userRoutes.POST("/create", server.createUser)
