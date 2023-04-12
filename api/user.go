@@ -15,7 +15,7 @@ type createUserRequest struct {
 }
 
 type getUserRequest struct {
-	Username string `json:"username" binding:"required"`
+	Username string `form:"username" binding:"required"`
 }
 
 type updateUserRequest struct {
@@ -54,7 +54,7 @@ func (server *Server) createUser(ctx *gin.Context) {
 
 func (server *Server) getUser(ctx *gin.Context) {
 	var req getUserRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
