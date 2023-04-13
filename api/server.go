@@ -1,7 +1,8 @@
 package api
 
 import (
-	"github.com/gin-contrib/cors"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	db "github.com/vin-oys/api-carpool/db/sqlc"
 )
@@ -15,7 +16,7 @@ func NewServer(store *db.Store) *Server {
 	server := &Server{store: store}
 	router := gin.Default()
 
-	router.Use(cors.Default())
+	router.Use(CORS)
 
 	userRoutes := router.Group("/user")
 
@@ -62,4 +63,18 @@ func (server *Server) Start(address string) error {
 
 func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
+}
+
+func CORS(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "*")
+	c.Header("Access-Control-Allow-Headers", "*")
+	c.Header("Content-Type", "application/json")
+
+	//handle the OPTIONS problem
+	if c.Request.Method != "OPTIONS" {
+		c.Next()
+	} else {
+		c.AbortWithStatus(http.StatusOK)
+	}
 }
