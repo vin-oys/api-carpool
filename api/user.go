@@ -1,10 +1,11 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	db "github.com/vin-oys/api-carpool/db/sqlc"
 	"github.com/vin-oys/api-carpool/util"
-	"net/http"
 )
 
 type createUserRequest struct {
@@ -60,6 +61,22 @@ func (server *Server) getUser(ctx *gin.Context) {
 	}
 
 	user, err := server.store.GetUser(ctx, req.Username)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, user)
+}
+
+func (server *Server) getUserList(ctx *gin.Context) {
+	var req db.ListUsersParams
+	if err := ctx.ShouldBindHeader(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	user, err := server.store.ListUsers(ctx, req)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

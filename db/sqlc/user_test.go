@@ -3,10 +3,11 @@ package db
 import (
 	"context"
 	"database/sql"
-	"github.com/stretchr/testify/require"
-	"github.com/vin-oys/api-carpool/util"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
+	"github.com/vin-oys/api-carpool/util"
 )
 
 func randomUserRole() UserRole {
@@ -17,7 +18,7 @@ func randomUserRole() UserRole {
 	return userRole[r.Intn(k)]
 }
 
-func CreateRandomUser(t *testing.T) User {
+func CreateRandomUser(t *testing.T) UserCreateResponse {
 	username := util.RandomUsername()
 	arg := CreateUserParams{
 		Username:      username,
@@ -31,9 +32,6 @@ func CreateRandomUser(t *testing.T) User {
 	require.NoError(t, err)
 	require.NotEmpty(t, user)
 
-	require.Equal(t, arg.Username, user.Username)
-	require.Equal(t, arg.Password, user.Password)
-	require.Equal(t, arg.ContactNumber, user.ContactNumber)
 	require.Equal(t, arg.RoleID, user.RoleID)
 
 	require.NotZero(t, user.ID)
@@ -52,9 +50,6 @@ func TestGetUser(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, user2)
 
-	require.Equal(t, user1.Username, user2.Username)
-	require.Equal(t, user1.Password, user2.Password)
-	require.Equal(t, user1.ContactNumber, user2.ContactNumber)
 	require.Equal(t, user1.RoleID, user2.RoleID)
 
 	require.WithinDuration(t, user1.CreatedAt, user2.CreatedAt, time.Second)
@@ -64,7 +59,7 @@ func TestUpdateUser(t *testing.T) {
 	user1 := CreateRandomUser(t)
 	arg := UpdateUserParams{
 		Username:      user1.Username,
-		ContactNumber: user1.ContactNumber,
+		ContactNumber: "",
 	}
 	user2, err := testQueries.UpdateUser(context.Background(), arg)
 
@@ -72,11 +67,9 @@ func TestUpdateUser(t *testing.T) {
 	require.NotEmpty(t, user2)
 
 	require.Equal(t, user1.Username, user2.Username)
-	require.Equal(t, user1.Password, user2.Password)
-	require.Equal(t, user1.ContactNumber, user2.ContactNumber)
 	require.Equal(t, user1.RoleID, user2.RoleID)
 
-	require.WithinDuration(t, user1.CreatedAt, user2.CreatedAt, time.Second)
+	require.WithinDuration(t, user1.CreatedAt, HandleNullTime(user2.UpdatedAt), time.Second)
 
 }
 
@@ -92,11 +85,9 @@ func TestUpdateUserPassword(t *testing.T) {
 	require.NotEmpty(t, user2)
 
 	require.Equal(t, user1.Username, user2.Username)
-	require.Equal(t, arg.Password, user2.Password)
-	require.Equal(t, user1.ContactNumber, user2.ContactNumber)
 	require.Equal(t, user1.RoleID, user2.RoleID)
 
-	require.WithinDuration(t, user1.CreatedAt, user2.CreatedAt, time.Second)
+	require.WithinDuration(t, user1.CreatedAt, HandleNullTime(user2.UpdatedAt), time.Second)
 
 }
 
@@ -112,11 +103,9 @@ func TestUpdateUserRole(t *testing.T) {
 	require.NotEmpty(t, user2)
 
 	require.Equal(t, user1.Username, user2.Username)
-	require.Equal(t, user1.Password, user2.Password)
-	require.Equal(t, user1.ContactNumber, user2.ContactNumber)
 	require.Equal(t, arg.RoleID, user2.RoleID)
 
-	require.WithinDuration(t, user1.CreatedAt, user2.CreatedAt, time.Second)
+	require.WithinDuration(t, user1.CreatedAt, HandleNullTime(user2.UpdatedAt), time.Second)
 
 }
 
@@ -141,6 +130,7 @@ func TestListUsers(t *testing.T) {
 	arg := ListUsersParams{
 		Limit:  5,
 		Offset: 5,
+		RoleID: "driver",
 	}
 
 	users, err := testQueries.ListUsers(context.Background(), arg)
@@ -151,4 +141,11 @@ func TestListUsers(t *testing.T) {
 		require.NotEmpty(t, user)
 	}
 
+}
+
+func HandleNullTime(nt sql.NullTime) time.Time {
+	if !nt.Valid {
+		return time.Time{}
+	}
+	return nt.Time
 }

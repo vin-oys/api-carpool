@@ -184,3 +184,29 @@ type User struct {
 	UpdatedAt     sql.NullTime   `json:"updated_at"`
 	RoleID        UserRole       `json:"role_id"`
 }
+
+type UserCreateResponse struct {
+	ID            int32          `json:"id"`
+	Username      string         `json:"username"`
+	CreatedAt     time.Time      `json:"created_at"`
+	RoleID        UserRole       `json:"role_id"`
+}
+
+type UserUpdateResponse struct {
+	ID            int32          `json:"id"`
+	Username      string         `json:"username"`
+	UpdatedAt     sql.NullTime   `json:"updated_at"`
+	RoleID        UserRole       `json:"role_id"`
+}
+
+type UserList struct {
+	ID            int32          `json:"id"`
+	Username      string         `json:"username"`
+	Password      string         `json:"password"`
+	Firstname     sql.NullString `json:"firstname"`
+	Lastname      sql.NullString `json:"lastname"`
+	ContactNumber string         `json:"contact_number"`
+	CreatedAt     time.Time      `json:"created_at"`
+	UpdatedAt     sql.NullTime   `json:"updated_at"`
+	RoleID        UserRole       `json:"role_id"`
+}

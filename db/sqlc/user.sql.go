@@ -12,7 +12,7 @@ import (
 const createUser = `-- name: CreateUser :one
 INSERT INTO "user" (username, password, contact_number, role_id)
 VALUES ($1, $2, $3, $4)
-RETURNING id, username, password, firstname, lastname, contact_number, created_at, updated_at, role_id
+RETURNING id, username, created_at, role_id
 `
 
 type CreateUserParams struct {
@@ -22,23 +22,18 @@ type CreateUserParams struct {
 	RoleID        UserRole `json:"role_id"`
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (UserCreateResponse, error) {
 	row := q.db.QueryRowContext(ctx, createUser,
 		arg.Username,
 		arg.Password,
 		arg.ContactNumber,
 		arg.RoleID,
 	)
-	var i User
+	var i UserCreateResponse
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
-		&i.Password,
-		&i.Firstname,
-		&i.Lastname,
-		&i.ContactNumber,
 		&i.CreatedAt,
-		&i.UpdatedAt,
 		&i.RoleID,
 	)
 	return i, err
@@ -80,7 +75,7 @@ func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, username, password, firstname, lastname, contact_number, created_at, updated_at, role_id
+SELECT id, username, firstname, lastname, contact_number, created_at, updated_at, role_id
 FROM "user"
 ORDER BY role_id
 LIMIT $1 OFFSET $2
@@ -89,21 +84,21 @@ LIMIT $1 OFFSET $2
 type ListUsersParams struct {
 	Limit  int32 `json:"limit"`
 	Offset int32 `json:"offset"`
+	RoleID UserRole `json:"role_id"`
 }
 
-func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error) {
+func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]UserList, error) {
 	rows, err := q.db.QueryContext(ctx, listUsers, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []User{}
+	items := []UserList{}
 	for rows.Next() {
-		var i User
+		var i UserList
 		if err := rows.Scan(
 			&i.ID,
 			&i.Username,
-			&i.Password,
 			&i.Firstname,
 			&i.Lastname,
 			&i.ContactNumber,
@@ -128,7 +123,7 @@ const updateUser = `-- name: UpdateUser :one
 UPDATE "user"
 SET contact_number = $2
 WHERE username = $1
-RETURNING id, username, password, firstname, lastname, contact_number, created_at, updated_at, role_id
+RETURNING id, username, updated_at, role_id
 `
 
 type UpdateUserParams struct {
@@ -136,17 +131,12 @@ type UpdateUserParams struct {
 	ContactNumber string `json:"contact_number"`
 }
 
-func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (UserUpdateResponse, error) {
 	row := q.db.QueryRowContext(ctx, updateUser, arg.Username, arg.ContactNumber)
-	var i User
+	var i UserUpdateResponse
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
-		&i.Password,
-		&i.Firstname,
-		&i.Lastname,
-		&i.ContactNumber,
-		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.RoleID,
 	)
@@ -165,17 +155,12 @@ type UpdateUserPasswordParams struct {
 	Password string `json:"password"`
 }
 
-func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) (User, error) {
+func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) (UserUpdateResponse, error) {
 	row := q.db.QueryRowContext(ctx, updateUserPassword, arg.Username, arg.Password)
-	var i User
+	var i UserUpdateResponse
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
-		&i.Password,
-		&i.Firstname,
-		&i.Lastname,
-		&i.ContactNumber,
-		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.RoleID,
 	)
@@ -194,17 +179,12 @@ type UpdateUserRoleParams struct {
 	RoleID   UserRole `json:"role_id"`
 }
 
-func (q *Queries) UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) (User, error) {
+func (q *Queries) UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) (UserUpdateResponse, error) {
 	row := q.db.QueryRowContext(ctx, updateUserRole, arg.Username, arg.RoleID)
-	var i User
+	var i UserUpdateResponse
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
-		&i.Password,
-		&i.Firstname,
-		&i.Lastname,
-		&i.ContactNumber,
-		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.RoleID,
 	)
