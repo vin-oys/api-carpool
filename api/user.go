@@ -1,10 +1,13 @@
 package api
 
 import (
+	"database/sql"
+	"net/http"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	db "github.com/vin-oys/api-carpool/db/sqlc"
 	"github.com/vin-oys/api-carpool/util"
-	"net/http"
 )
 
 type createUserRequest struct {
@@ -25,6 +28,31 @@ type updateUserRequest struct {
 
 type deleteUserRequest struct {
 	Username string `json:"username" binding:"required"`
+}
+
+type UserCreateResponse struct {
+	ID        int32       `json:"id"`
+	Username  string      `json:"username"`
+	CreatedAt time.Time   `json:"created_at"`
+	RoleID    db.UserRole `json:"role_id"`
+}
+
+type UserUpdateResponse struct {
+	ID        int32        `json:"id"`
+	Username  string       `json:"username"`
+	UpdatedAt sql.NullTime `json:"updated_at"`
+	RoleID    db.UserRole  `json:"role_id"`
+}
+
+type UserResponse struct {
+	ID            int32          `json:"id"`
+	Username      string         `json:"username"`
+	Firstname     sql.NullString `json:"firstname"`
+	Lastname      sql.NullString `json:"lastname"`
+	ContactNumber string         `json:"contact_number"`
+	CreatedAt     time.Time      `json:"created_at"`
+	UpdatedAt     sql.NullTime   `json:"updated_at"`
+	RoleID        db.UserRole    `json:"role_id"`
 }
 
 func (server *Server) createUser(ctx *gin.Context) {
@@ -49,7 +77,14 @@ func (server *Server) createUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, user)
+	response := UserCreateResponse{
+		ID:        user.ID,
+		Username:  user.Username,
+		CreatedAt: user.CreatedAt,
+		RoleID:    user.RoleID,
+	}
+
+	ctx.JSON(http.StatusOK, response)
 }
 
 func (server *Server) getUser(ctx *gin.Context) {
@@ -65,7 +100,50 @@ func (server *Server) getUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, user)
+	response := UserResponse{
+		ID:            user.ID,
+		Username:      user.Username,
+		Firstname:     user.Firstname,
+		Lastname:      user.Lastname,
+		ContactNumber: user.ContactNumber,
+		CreatedAt:     user.CreatedAt,
+		UpdatedAt:     user.UpdatedAt,
+		RoleID:        user.RoleID,
+	}
+
+	ctx.JSON(http.StatusOK, response)
+}
+
+func (server *Server) getUserList(ctx *gin.Context) {
+	var req db.ListUsersParams
+	if err := ctx.ShouldBindHeader(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	userList, err := server.store.ListUsers(ctx, req)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	responseList := []UserResponse{}
+
+	for _, user := range userList {
+		response := UserResponse{
+			ID:            user.ID,
+			Username:      user.Username,
+			Firstname:     user.Firstname,
+			Lastname:      user.Lastname,
+			ContactNumber: user.ContactNumber,
+			CreatedAt:     user.CreatedAt,
+			UpdatedAt:     user.UpdatedAt,
+			RoleID:        user.RoleID,
+		}
+		responseList = append(responseList, response)
+	}
+
+	ctx.JSON(http.StatusOK, responseList)
 }
 
 func (server *Server) updateUser(ctx *gin.Context) {
@@ -86,7 +164,14 @@ func (server *Server) updateUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, res)
+	response := UserUpdateResponse{
+		ID:        res.ID,
+		Username:  res.Username,
+		UpdatedAt: res.UpdatedAt,
+		RoleID:    res.RoleID,
+	}
+
+	ctx.JSON(http.StatusOK, response)
 }
 
 func (server *Server) deleteUser(ctx *gin.Context) {
