@@ -21,6 +21,7 @@ func NewServer(store *db.Store) *Server {
 
 	userRoutes.POST("/create", server.createUser)
 	userRoutes.GET("/get", server.getUser)
+	userRoutes.GET("/get/list", server.getUserList)
 	userRoutes.PUT("/update", server.updateUser)
 	userRoutes.DELETE("/delete", server.deleteUser)
 
