@@ -1,24 +1,38 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	db "github.com/vin-oys/api-carpool/db/sqlc"
+	"github.com/vin-oys/api-carpool/token"
+	"github.com/vin-oys/api-carpool/util"
 )
 
 type Server struct {
-	store  *db.Store
-	router *gin.Engine
+	config     util.Config
+	store      *db.Store
+	tokenMaker token.Maker
+	router     *gin.Engine
 }
 
-func NewServer(store *db.Store) *Server {
-	server := &Server{store: store}
+func NewServer(config util.Config, store *db.Store) (*Server, error) {
+	tokenMaker, err := token.NewJWTMaker(config.TokenSymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create token maker: %w", err)
+	}
+	server := &Server{
+		config:     config,
+		store:      store,
+		tokenMaker: tokenMaker,
+	}
 	router := gin.Default()
 
 	router.Use(cors.Default())
 
 	userRoutes := router.Group("/user")
 
+	userRoutes.POST("/login", server.loginUser)
 	userRoutes.POST("/create", server.createUser)
 	userRoutes.GET("/get", server.getUser)
 	userRoutes.PUT("/update", server.updateUser)
@@ -53,7 +67,7 @@ func NewServer(store *db.Store) *Server {
 	scheduleRoutes.DELETE("/delete", server.deleteSchedule)
 
 	server.router = router
-	return server
+	return server, nil
 }
 
 func (server *Server) Start(address string) error {
