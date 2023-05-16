@@ -1,0 +1,18 @@
+name: Github Workflow
+on: push
+jobs:
+  promotional-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install golang
+        uses: actions/setup-go@v4
+        with:
+          go-version: '^1.20.0'
+      - name: Install dependencies
+        run: go get .
+      - name: Build project
+        run: go build -v ./...
+      - name: Run test
+        run: go test ./...
